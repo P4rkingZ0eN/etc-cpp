@@ -79,7 +79,7 @@ pair<int,int>ps[103][103];
 int main(){
     freopen("data/WCG/20_1.in","r",stdin);
     //ios_base::sync_with_stdio(false);cin.tie(NULL);
-    N=20;
+    cin>>N;
     cout<<fixed;
     cout.precision(2);
     register int i,j;
