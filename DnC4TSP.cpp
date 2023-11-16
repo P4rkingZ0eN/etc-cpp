@@ -17,6 +17,7 @@ lf C(int u){
 }
 void Divde(){
     if(A.empty())return;
+
     lf mx=0,X=0;
     register int i;
     for(auto it=A.begin();it!=A.end();it++){
@@ -34,14 +35,11 @@ void Divde(){
             V.back().insert(B[i].second);
             continue;
         }
-        lf M=f(0);bool flag=true;
-        for(auto it=V.back().begin();it!=V.back().end();it++){
-            flag&=(0.85*M<=f(dist[B[i].second][*it]));
-            //cout<<M<<" "<<f(dist[B[i].second][*it])<<endl;
-        }
-        if(flag){
+        lf F=f(0);
+        if(f(dist[B.front().second][B[i].second])>=0.95*F){
             A.erase(B[i].second);
             V.back().insert(B[i].second);
+            F=((V.back().size()-2)*F+f(dist[B.front().second][B[i].second]))/(V.back().size()-1);
         }
     }
     Divde();
@@ -76,8 +74,8 @@ lf opt_TSP(int bit,int cur){
     return D[bit][cur];
 }
 pair<int,int>ps[103][103];
+pair<double,double>Cor[103];
 int main(){
-    freopen("data/WCG/20_1.in","r",stdin);
     //ios_base::sync_with_stdio(false);cin.tie(NULL);
     cin>>N;
     cout<<fixed;
@@ -89,12 +87,15 @@ int main(){
     for(i=1;i<=N;i++){
         A.insert(i);
         dist[i].resize(N+1);
-        for(j=1;j<=N;j++){
-            lf a;cin>>a;
-            dist[i][j]=a;
-            mn=min(mn,a);
-            mx=max(mx,a);
-        }
+    }
+    for(int i=1;i<=N;i++){
+    	double x,y;cin>>x>>y;
+    	Cor[i]={x,y};
+    	for(int j=1;j<i;j++){
+    		dist[i][j]=dist[j][i]=sqrt((Cor[j].first-x)*(Cor[j].first-x)+(Cor[j].second-y)*(Cor[j].second-y));
+    		mn=min(dist[i][j],mn);
+    		mx=max(dist[i][j],mx);
+    	}
     }
     dist0=dist;
     for(int i=1;i<=N;i++){
@@ -176,11 +177,13 @@ int main(){
     	memset(anc,0,sizeof(anc));
     	memset(D,0,sizeof(D));
     	if(u==path.back()){
-    		q=apr;
-    		tour[q].push_back(ps[u][v].second);
-    		tour[ps[u][v].second].push_back(q);
+    		lf mn=9e18;
+    		for(auto it=V[u-1].begin();it!=V[u-1].end();it++){
+    			if(dist0[*it][apr]<mn&&*it!=p){mn=dist0[*it][apr];q=*it;}
+    		}
+    		tour[q].push_back(apr);
+    		tour[apr].push_back(q);
     	}
-
     	p=mp[p],Q=mp[q];
     	TSP(1<<(p-1),p);
 
@@ -198,6 +201,8 @@ int main(){
     	mp.clear();
     }
 
+    /*
+     * Printing tour *
     int x=1;
     vector<bool>vis(N+2,false);
     while(1){
@@ -212,7 +217,10 @@ int main(){
     	}
     	if(stop)break;
     }
-    cout<<endl;
+    cout<<"\n";
+    */
+
+    cout<<"\n";
     cout<<"RESULT\n";
     cout<<"Weight of Tour: "<<ans<<"\n";
     EE=clock();
@@ -220,7 +228,7 @@ int main(){
     memset(D,0,sizeof(D));
     cout<<flush;
     SS=clock();
-    cout<<"Weight of Optimal Tour: "<<opt_TSP(1,1)<<"\n";
+    //cout<<"Weight of Optimal Tour: "<<opt_TSP(1,1)<<"\n";
     EE=clock();
     cout<<"Running Time: "<<EE-SS<<"ms\n\n";
     return 0;
